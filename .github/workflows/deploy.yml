@@ -1,0 +1,57 @@
+name: Deploy Photo Wall
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      BRANCH_NAME: main  # 定义分支名称变量
+    steps:
+      - name: Checkout Repository main branch
+        uses: actions/checkout@main
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run step1
+        run: python ./step1_rename.py
+
+      - name: Run step2
+        run: python ./step2_thumbs.py
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --exit-code; then
+            echo "No changes detected."
+            exit 1  # 无变化时退出，跳过后续步骤
+          else
+            echo "Changes detected."
+          fi
+
+      - name: Commit file
+        if: steps.check_changes.outcome == 'failure'  # 仅当检测到变化时执行
+        run: |
+          git config --local user.email 'github-actions[bot]@users.noreply.github.com'
+          git config --local user.name 'github-actions[bot]'
+          git add .
+          git commit -am '[bot] update images.json' --allow-empty
+
+      - name: Push changes
+        if: steps.check_changes.outcome == 'failure'
+        uses: ad-m/github-push-action@main
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+        # 可选：添加错误处理
+        # continue-on-error: true
+
+      - name: Server酱通知
+        if: always()  # 始终执行通知
+        run: |
+          curl -X POST "https://sc.ftqq.com/${{ secrets.SCKEY }}.send" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "text=纪念日网页部署任务完成&desp=[Anniversary website](https://anniversary.baixf.shop)"
