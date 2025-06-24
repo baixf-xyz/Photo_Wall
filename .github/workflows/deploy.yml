@@ -38,7 +38,7 @@ jobs:
           fi
 
       - name: Commit file
-        if: steps.check_changes.outcome == 'failure'  # 仅当检测到变化时执行
+        id: commit_changes
         run: |
           git config --local user.email 'github-actions[bot]@users.noreply.github.com'
           git config --local user.name 'github-actions[bot]'
