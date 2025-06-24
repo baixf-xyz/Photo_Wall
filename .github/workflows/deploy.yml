@@ -10,7 +10,7 @@ jobs:
       BRANCH_NAME: main  # 定义分支名称变量
     steps:
       - name: Checkout Repository main branch
-        uses: actions/checkout@main
+        uses: actions/checkout@master
 
       - name: Set up Python
         uses: actions/setup-python@v5
