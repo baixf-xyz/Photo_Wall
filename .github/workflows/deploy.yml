@@ -46,7 +46,7 @@ jobs:
           git commit -am '[bot] update images.json' --allow-empty
 
       - name: Push changes
-        if: steps.check_changes.outcome == 'failure'
+        id: push_changes
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GH_TOKEN }}
